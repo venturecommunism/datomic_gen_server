@@ -30,7 +30,7 @@
 (declare ^:dynamic *db*)
 (defn- datoms [database connection edn-str binding-edn-list]
   (if (empty? binding-edn-list)
-      (let [result (-> (seq (datomic/datoms database :eavt)) prn-str)]
+      (let [result (-> (seq (datomic/datoms database (load-string edn-str))) prn-str)]
         result)
     (binding [*db* database]
       (let [result (->> binding-edn-list (map read-edn) (map eval) (apply datomic/q edn-str) prn-str)]
