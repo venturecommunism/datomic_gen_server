@@ -28,6 +28,16 @@
 
 ;; This allows us to bind datomic_gen_server.peer/*db* in the edn that is passed in
 (declare ^:dynamic *db*)
+(defn- qlog [database connection edn-str binding-edn-list]
+  (if (empty? binding-edn-list)
+      ;; to get :eavt index do:
+      ;; (seq (datomic/datom (database connection) :eavt))
+      (let [result (-> (datomic/q edn-str (datomic/log connection) #inst "1970-01-01T00:00:00.000-00:00" 13194139534313) prn-str)]
+        result)
+    (binding [*db* database]
+      (let [result (->> binding-edn-list (map read-edn) (map eval) (apply datomic/q edn-str) prn-str)]
+        result))))
+
 (defn- q [database edn-str binding-edn-list]
   (if (empty? binding-edn-list)
       (let [result (-> edn-str (datomic/q database) prn-str)]
@@ -128,6 +138,9 @@
     (if (Boolean/getBoolean "debug.messages") (.println *err* (str "PEER RECEIVED: [" message "]")) :default)
     (match message
       ; IMPORTANT: RETURN MESSAGE ID IF IT IS AVAILABLE
+      [:qlog message-id edn binding-edn]
+          (let [response [:ok message-id (qlog database connection edn binding-edn)]]
+            (new-state response database connection db-map))
       [:q message-id edn binding-edn]
           (let [response [:ok message-id (q database edn binding-edn)]]
             (new-state response database connection db-map))
