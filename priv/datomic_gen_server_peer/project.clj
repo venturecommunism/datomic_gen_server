@@ -4,12 +4,12 @@
                  [org.clojure/core.async "0.2.374"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [clojure-erlastic "0.3.1"]
-                 [com.datomic/datomic-pro "0.9.5350"]
+                 [com.datomic/datomic-free "0.9.5544"]
                  [vvvvalvalval/datomock "0.1.0"]
-                 [net.phobot.datomic/seed "3.0.0"]
+;                 [net.phobot.datomic/seed "3.0.0"]
                 ]
-  :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
-                                   :creds :gpg}}
+;  :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
+;                                   :creds :gpg}}
   :main datomic_gen_server.peer
   :aot :all)
 
