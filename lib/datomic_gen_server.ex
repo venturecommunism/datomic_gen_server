@@ -42,7 +42,7 @@ defmodule DatomicGenServer do
                     :e 0, :v 64, :tx 13194139534313, :added true}], :tempids {-9223367638809264705 64}}"}
   """
   @type datomic_message :: {:datoms, integer, String.t, [String.t]} |
-                           {:qlog, integer, String.t, [String.t]} |
+                           {:qlog, integer, String.t, integer, [String.t]} |
                            {:q, integer, String.t, [String.t]} | 
                            {:transact, integer, String.t} | 
                            {:pull, integer, String.t, String.t} | 
@@ -152,8 +152,8 @@ defmodule DatomicGenServer do
     call_server(server_identifier, {:datoms, msg_unique_id, edn_str, bindings}, options)
   end
 
-  @spec qlog(GenServer.server, String.t, [String.t], [send_option]) :: datomic_result
-  def qlog(server_identifier, edn_str, bindings_edn \\ [], options \\ []) do
+  @spec qlog(GenServer.server, String.t, integer, [String.t], [send_option]) :: datomic_result
+  def qlog(server_identifier, edn_str, latest_transaction, bindings_edn \\ [], options \\ []) do
     # Note that clojure-erltastic sends empty lists to Clojure as `nil`. This
     # interferes with `wait_for_response` - if an error comes back it expects to
     # find the original message, but Clojure will return the original message as
@@ -162,7 +162,7 @@ defmodule DatomicGenServer do
     # Clojure; only `nil`.
     bindings = if bindings_edn && ! Enum.empty?(bindings_edn) do bindings_edn else nil end
     msg_unique_id = :erlang.unique_integer([:monotonic])
-    call_server(server_identifier, {:qlog, msg_unique_id, edn_str, bindings}, options)
+    call_server(server_identifier, {:qlog, msg_unique_id, edn_str, 0, bindings}, options)
   end
 
   @doc """

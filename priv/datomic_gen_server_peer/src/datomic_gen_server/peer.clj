@@ -36,9 +36,10 @@
       (let [result (->> binding-edn-list (map read-edn) (map eval) (apply datomic/q edn-str) prn-str)]
         result))))
 
-(defn- qlog [database connection edn-str binding-edn-list]
+(defn- qlog [database connection edn-str latest-tx binding-edn-list]
   (if (empty? binding-edn-list)
-      (let [result (-> (datomic/q edn-str (datomic/log connection) #inst "1970-01-01T00:00:00.000-00:00" 13194139534313) prn-str)]
+      (let [result (-> (datomic/q edn-str (datomic/log connection) latest-tx) prn-str)]
+;;      (let [result (-> (datomic/q edn-str (datomic/log connection) #inst "1970-01-01T00:00:00.000-00:00" 13194139533375) prn-str)]
         result)
     (binding [*db* database]
       (let [result (->> binding-edn-list (map read-edn) (map eval) (apply datomic/q edn-str) prn-str)]
@@ -147,8 +148,8 @@
       [:datoms message-id edn binding-edn]
           (let [response [:ok message-id (datoms database connection edn binding-edn)]]
             (new-state response database connection db-map))
-      [:qlog message-id edn binding-edn]
-          (let [response [:ok message-id (qlog database connection edn binding-edn)]]
+      [:qlog message-id edn latest-tx binding-edn]
+          (let [response [:ok message-id (qlog database connection edn latest-tx binding-edn)]]
             (new-state response database connection db-map))
       [:q message-id edn binding-edn]
           (let [response [:ok message-id (q database edn binding-edn)]]
