@@ -276,3 +276,23 @@
 ;             the real connection as the "active" one
 ;             the unchanged map of db values, and 
 ;             the real connection
+
+(comment
+  (def db-uri "datomic:free://localhost:4334/some-database-you-want-to-delete-be-careful")
+;;  (datomic/delete-database db-uri)
+;;  (datomic/create-database db-uri)
+  (def conn (datomic/connect db-uri))
+  (def db (datomic/db conn))
+
+(def docsquery
+  (datomic/q '[:find ?o
+         :where
+         [?a :db/doc ?o]]
+       db))
+
+(defn -main [& args]
+  (println "Attempting query")
+  (println docsquery)
+  (println "Attempted query")
+)
+) ;; end commented delete-database section. will have to comment out other code to use but leave the ns, genclass and requires
