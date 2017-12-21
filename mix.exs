@@ -78,7 +78,7 @@ defmodule DatomicGenServer.Mixfile do
     if [peer_dir, "target", "peer*standalone.jar"] |> Path.join |> Path.wildcard |> Enum.empty? do
       pwd = System.cwd()
       File.cd(peer_dir)
-      Mix.shell.cmd "lein uberjar"
+      Mix.shell.cmd "mkdir target && lein uberjar && mv classes lib peer*.jar target"
       File.cd(pwd)
     end
   end
