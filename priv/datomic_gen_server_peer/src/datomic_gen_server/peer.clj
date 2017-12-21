@@ -10,6 +10,7 @@
             [net.phobot.datomic.seed :refer [transact-seed-data]]
   ))
 
+;; (comment ;; begin big comment
 ; TODO Maybe want to configure this
 ; The amount of time to wait after a migration for a db sync to occur.
 (def migration-timeout-ms 5000)
@@ -277,10 +278,12 @@
 ;             the unchanged map of db values, and 
 ;             the real connection
 
+;; ) ;; big comment
+
 (comment
-  (def db-uri "datomic:free://localhost:4334/some-database-you-want-to-delete-be-careful")
+  (def db-uri "datomic:free://localhost:4334/test-db-1")
 ;;  (datomic/delete-database db-uri)
-;;  (datomic/create-database db-uri)
+  (datomic/create-database db-uri)
   (def conn (datomic/connect db-uri))
   (def db (datomic/db conn))
 
