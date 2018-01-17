@@ -281,7 +281,8 @@
 ;; ) ;; big comment
 
 (comment
-  (def db-uri "datomic:free://localhost:4334/test-db-1")
+;;  (def db-uri "datomic:free://localhost:4334/test-db-1")
+  (def db-uri "datomic:sql://test?jdbc:postgresql://localhost:5432/datomic?user=datomic&password=datomic")
 ;;  (datomic/delete-database db-uri)
   (datomic/create-database db-uri)
   (def conn (datomic/connect db-uri))
