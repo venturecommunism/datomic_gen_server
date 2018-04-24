@@ -136,7 +136,8 @@ defmodule DatomicGenServer do
     {maybe_process_identifier, options} = Keyword.pop(options, :name) 
     
     params = {db_uri, create?, maybe_process_identifier, startup_wait, default_message_timeout}
-    {params, options}
+    {options, _leftovers_should_be_empty} = Keyword.pop(options, :registry)
+    {params, name: options}
   end
 
   @spec datoms(GenServer.server, String.t, [String.t], [send_option]) :: datomic_result
