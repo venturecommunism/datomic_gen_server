@@ -37,6 +37,11 @@
       (let [result (->> binding-edn-list (map read-edn) (map eval) (apply datomic/q edn-str) prn-str)]
         result))))
 
+(defn- since [database edn-str latest-tx]
+  (binding [*db* database]
+    (let [result (-> (datomic/q edn-str database (datomic/since database latest-tx)) prn-str)]
+      result)))
+
 (defn- qlog [database connection edn-str latest-tx binding-edn-list]
   (if (empty? binding-edn-list)
       (let [result (-> (datomic/q edn-str (datomic/log connection) latest-tx) prn-str)]
@@ -148,6 +153,9 @@
       ; IMPORTANT: RETURN MESSAGE ID IF IT IS AVAILABLE
       [:datoms message-id edn binding-edn]
           (let [response [:ok message-id (datoms database connection edn binding-edn)]]
+            (new-state response database connection db-map))
+      [:since message-id edn latest-tx]
+          (let [response [:ok message-id (since database edn latest-tx)]]
             (new-state response database connection db-map))
       [:qlog message-id edn latest-tx binding-edn]
           (let [response [:ok message-id (qlog database connection edn latest-tx binding-edn)]]

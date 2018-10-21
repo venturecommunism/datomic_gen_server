@@ -42,6 +42,7 @@ defmodule DatomicGenServer do
                     :e 0, :v 64, :tx 13194139534313, :added true}], :tempids {-9223367638809264705 64}}"}
   """
   @type datomic_message :: {:datoms, integer, String.t, [String.t]} |
+                           {:since, integer, String.t, integer} |
                            {:qlog, integer, String.t, integer, [String.t]} |
                            {:q, integer, String.t, [String.t]} | 
                            {:transact, integer, String.t} | 
@@ -164,6 +165,18 @@ defmodule DatomicGenServer do
     bindings = if bindings_edn && ! Enum.empty?(bindings_edn) do bindings_edn else nil end
     msg_unique_id = :erlang.unique_integer([:monotonic])
     call_server(server_identifier, {:qlog, msg_unique_id, edn_str, 0, bindings}, options)
+  end
+
+  @spec since(GenServer.server, String.t, integer, [send_option]) :: datomic_result
+  def since(server_identifier, edn_str, latest_transaction, options \\ []) do
+    # Note that clojure-erltastic sends empty lists to Clojure as `nil`. This
+    # interferes with `wait_for_response` - if an error comes back it expects to
+    # find the original message, but Clojure will return the original message as
+    # having a `nil` where we are waiting for original message containing an
+    # empty list. To protect against this situation we never send empty lists to
+    # Clojure; only `nil`.
+    msg_unique_id = :erlang.unique_integer([:monotonic])
+    call_server(server_identifier, {:since, msg_unique_id, edn_str, latest_transaction}, options)
   end
 
   @doc """
