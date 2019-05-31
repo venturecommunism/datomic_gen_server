@@ -44,11 +44,17 @@
 
 (defn- qlog [database connection edn-str latest-tx binding-edn-list]
   (if (empty? binding-edn-list)
-      (let [result (-> (datomic/q edn-str (datomic/log connection) latest-tx) prn-str)]
+      (binding [*db* database]
+
+;;      (let [result (prn-str (datomic/q edn-str database (datomic/db connection) (datomic/log connection) #inst "1970-01-02" #inst "2970-01-02"))]
+      (let [result (prn-str (datomic/q edn-str (datomic/db connection) (datomic/log connection) latest-tx))]
+;;    (let [result (-> (datomic/q edn-str (datomic/log connection) latest-tx) prn-str)]
 ;;      (let [result (-> (datomic/q edn-str (datomic/log connection) #inst "1970-01-01T00:00:00.000-00:00" 13194139533375) prn-str)]
-        result)
+        result))
     (binding [*db* database]
-      (let [result (->> binding-edn-list (map read-edn) (map eval) (apply datomic/q edn-str) prn-str)]
+;;      (let [result (->> binding-edn-list (map read-edn) (map eval) (apply datomic/q edn-str) prn-str)]
+      (let [result (prn-str (datomic/q edn-str (datomic/db connection) (datomic/log connection) latest-tx))]
+;;      (let [result (prn-str (datomic/q edn-str (datomic/db connection) (datomic/log connection) #inst "1970-01-02" #inst "2970-01-02"))]
         result))))
 
 (defn- q [database edn-str binding-edn-list]
